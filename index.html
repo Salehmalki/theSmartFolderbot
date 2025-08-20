@@ -2,30 +2,59 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>اختبار switchInlineQuery</title>
+    <title>نموذج المطوية المدرسية</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
-        button { font-size: 24px; padding: 20px 40px; cursor: pointer; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 15px; margin: 0; background-color: var(--tg-theme-bg-color ); color: var(--tg-theme-text-color); }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--tg-theme-hint-color); }
+        input, select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--tg-theme-hint-color); background-color: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-text-color); font-size: 16px; }
+        button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>اختبار تحويل النص إلى رسالة</h1>
-    <p>اضغط على الزر لتجهيز رسالة "مرحبا n8n" في شاشة الدردشة.</p>
-    <button id="testButton">تجهيز الرسالة</button>
+    <div class="container">
+        <h1>📄 نموذج المطوية المدرسية</h1>
+        <form id="brochureForm">
+            <!-- جميع حقول النموذج -->
+            <div class="form-group"><label for="type">نوع المطوية *</label><select id="type" required><option value="">اختر</option><option value="تعليمية">تعليمية</option><option value="إرشادية">إرشادية</option></select></div>
+            <div class="form-group"><label for="subject">الموضوع *</label><input type="text" id="subject" required></div>
+            <div class="form-group"><label for="student">اسم الطالب *</label><input type="text" id="student" required></div>
+            <div class="form-group"><label for="school">اسم المدرسة</label><input type="text" id="school"></div>
+            <div class="form-group"><label for="teacher">اسم المعلم</label><input type="text" id="teacher"></div>
+            <button type="submit">تجهيز بيانات المطوية</button>
+        </form>
+    </div>
 
     <script>
-        window.addEventListener('load', function( ) {
+        window.addEventListener('load', function() {
             const tg = window.Telegram.WebApp;
             tg.ready();
 
-            document.getElementById('testButton').addEventListener('click', function() {
-                // النص الذي نريد تحويله إلى رسالة
-                const testMessage = "مرحبا n8n، هذا اختبار ناجح.";
+            document.getElementById('brochureForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const data = {
+                    "نوع المطوية": document.getElementById('type').value,
+                    "الموضوع": document.getElementById('subject').value,
+                    "اسم الطالب": document.getElementById('student').value,
+                    "اسم المدرسة": document.getElementById('school').value,
+                    "اسم المعلم": document.getElementById('teacher').value
+                };
 
-                // **هذه هي الدالة التي نختبرها**
-                // ستقوم بالتبديل إلى شاشة الدردشة ووضع النص في صندوق الإرسال
-                tg.switchInlineQuery(testMessage, []);
+                if (!data["نوع المطوية"] || !data["الموضوع"] || !data["اسم الطالب"]) {
+                    tg.showAlert('يرجى ملء الحقول الإلزامية.');
+                    return;
+                }
+
+                let dataString = "بيانات المطوية الجديدة:\n";
+                for (const [label, value] of Object.entries(data)) {
+                    if (value) { dataString += `${label}: ${value}\n`; }
+                }
+
+                // استخدام الآلية الناجحة
+                tg.switchInlineQuery(dataString, []);
             });
         });
     </script>
