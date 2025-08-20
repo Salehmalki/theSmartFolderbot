@@ -1,238 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Telegram WebApp</title>
+    <title>نموذج المطوية المدرسية</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-        }
-        button { 
-            display: block; 
-            width: 100%; 
-            padding: 15px; 
-            margin: 10px 0; 
-            background: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #fff);
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .info { 
-            background: #f0f0f0; 
-            padding: 10px; 
-            margin: 10px 0; 
-            border-radius: 5px;
-            font-size: 12px;
-        }
-        .error { background: #ffebee; color: #c62828; }
-        .success { background: #e8f5e8; color: #2e7d32; }
+        /* نفس الـ CSS، لا تغيير */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 15px; margin: 0; background-color: var(--tg-theme-bg-color ); color: var(--tg-theme-text-color); }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--tg-theme-hint-color); }
+        input, select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 8px; border: 1px solid var(--tg-theme-hint-color); background-color: var(--tg-theme-secondary-bg-color); color: var(--tg-theme-text-color); font-size: 16px; }
+        button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>🔧 تشخيص Telegram WebApp</h1>
-    
-    <div id="info" class="info">
-        <div><strong>حالة WebApp:</strong> <span id="status">جاري التحقق...</span></div>
-        <div><strong>المنصة:</strong> <span id="platform">-</span></div>
-        <div><strong>الإصدار:</strong> <span id="version">-</span></div>
-        <div><strong>البيئة:</strong> <span id="environment">-</span></div>
+    <div class="container">
+        <h1>📄 نموذج المطوية المدرسية</h1>
+        <form id="brochureForm">
+            <!-- جميع حقول النموذج -->
+            <div class="form-group"><label for="type">نوع المطوية *</label><select id="type" required><option value="">اختر</option><option value="تعليمية">تعليمية</option><option value="إرشادية">إرشادية</option></select></div>
+            <div class="form-group"><label for="subject">الموضوع *</label><input type="text" id="subject" required></div>
+            <div class="form-group"><label for="student">اسم الطالب *</label><input type="text" id="student" required></div>
+            <div class="form-group"><label for="school">اسم المدرسة</label><input type="text" id="school"></div>
+            <div class="form-group"><label for="teacher">اسم المعلم</label><input type="text" id="teacher"></div>
+            <button type="submit">إرسال البيانات</button>
+        </form>
     </div>
 
-    <button onclick="testBasic()">1️⃣ اختبار أساسي - sendData</button>
-    <button onclick="testWithValidation()">2️⃣ اختبار مع التحقق</button>
-    <button onclick="testMainButton()">3️⃣ اختبار MainButton</button>
-    <button onclick="testHaptic()">4️⃣ اختبار Haptic</button>
-    <button onclick="testAlert()">5️⃣ اختبار Alert</button>
-    <button onclick="testExpand()">6️⃣ اختبار Expand</button>
-
-    <div id="results"></div>
-
     <script>
-        let tg = window.Telegram?.WebApp;
-        
-        function log(message, type = 'info') {
-            const results = document.getElementById('results');
-            const div = document.createElement('div');
-            div.className = `info ${type}`;
-            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
-            results.appendChild(div);
-            console.log(message);
-        }
+        window.addEventListener('load', function() {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
 
-        function updateInfo() {
-            const status = document.getElementById('status');
-            const platform = document.getElementById('platform');
-            const version = document.getElementById('version');
-            const environment = document.getElementById('environment');
+            // اسم المستخدم الخاص ببوتك بدون @
+            const botUsername = "theSmartFolderbot"; 
 
-            if (!window.Telegram) {
-                status.textContent = '❌ Telegram غير متوفر';
-                log('❌ window.Telegram غير موجود', 'error');
-                return;
-            }
-
-            if (!tg) {
-                status.textContent = '❌ WebApp غير متوفر';
-                log('❌ Telegram.WebApp غير موجود', 'error');
-                return;
-            }
-
-            status.textContent = '✅ متصل';
-            platform.textContent = tg.platform || 'غير محدد';
-            version.textContent = tg.version || 'غير محدد';
-            environment.textContent = tg.isExpanded ? 'موسع' : 'مصغر';
-
-            log(`✅ WebApp جاهز - Platform: ${tg.platform}, Version: ${tg.version}`, 'success');
-            log(`📱 ViewportHeight: ${tg.viewportHeight}, isExpanded: ${tg.isExpanded}`);
-            log(`🎨 colorScheme: ${tg.colorScheme}, themeParams: ${JSON.stringify(tg.themeParams)}`);
-        }
-
-        function testBasic() {
-            log('🧪 بدء الاختبار الأساسي...');
-            
-            if (!tg) {
-                log('❌ Telegram WebApp غير متوفر', 'error');
-                return;
-            }
-
-            try {
+            document.getElementById('brochureForm').addEventListener('submit', function(e) {
+                e.preventDefault();
                 const data = {
-                    test: 'basic',
-                    timestamp: Date.now(),
-                    platform: tg.platform
+                    "نوع المطوية": document.getElementById('type').value,
+                    "الموضوع": document.getElementById('subject').value,
+                    "اسم الطالب": document.getElementById('student').value,
+                    "اسم المدرسة": document.getElementById('school').value,
+                    "اسم المعلم": document.getElementById('teacher').value
                 };
+
+                if (!data["نوع المطوية"] || !data["الموضوع"] || !data["اسم الطالب"]) {
+                    tg.showAlert('يرجى ملء الحقول الإلزامية.');
+                    return;
+                }
+
+                let dataString = "بيانات المطوية الجديدة:\n";
+                for (const [label, value] of Object.entries(data)) {
+                    if (value) { dataString += `${label}: ${value}\n`; }
+                }
+
+                // **الحل النهائي: نستخدم رابط t.me مع ترميز النص**
+                const encodedText = encodeURIComponent(dataString);
+                const telegramUrl = `https://t.me/${botUsername}?text=${encodedText}`;
+
+                // هذه الدالة تفتح الرابط، مما يؤدي إلى فتح شاشة الدردشة مع النص المجهز
+                tg.openTelegramLink(telegramUrl );
                 
-                log(`📤 محاولة إرسال: ${JSON.stringify(data)}`);
-                tg.sendData(JSON.stringify(data));
-                log('✅ تم استدعاء sendData بنجاح', 'success');
-                
-                // لا نغلق WebApp في الاختبار
-                // tg.close();
-                
-            } catch (error) {
-                log(`❌ خطأ في sendData: ${error.message}`, 'error');
-            }
-        }
-
-        function testWithValidation() {
-            log('🧪 بدء اختبار التحقق...');
-            
-            if (!tg?.sendData) {
-                log('❌ sendData غير متوفر', 'error');
-                return;
-            }
-
-            if (!tg.initData) {
-                log('⚠️ تحذير: initData فارغ - قد لا يكون WebApp مفتوح من تليجرام', 'error');
-            }
-
-            try {
-                const data = {
-                    test: 'validation',
-                    initData: tg.initData,
-                    initDataUnsafe: tg.initDataUnsafe,
-                    timestamp: Date.now()
-                };
-                
-                log(`📤 إرسال بيانات التحقق: ${JSON.stringify(data, null, 2)}`);
-                tg.sendData(JSON.stringify(data));
-                log('✅ تم الإرسال مع بيانات التحقق', 'success');
-                
-            } catch (error) {
-                log(`❌ خطأ: ${error.message}`, 'error');
-            }
-        }
-
-        function testMainButton() {
-            log('🧪 اختبار MainButton...');
-            
-            if (!tg?.MainButton) {
-                log('❌ MainButton غير متوفر', 'error');
-                return;
-            }
-
-            try {
-                tg.MainButton.setText('📤 إرسال عبر MainButton');
-                tg.MainButton.onClick(() => {
-                    log('🔘 تم الضغط على MainButton');
-                    const data = { test: 'mainButton', timestamp: Date.now() };
-                    tg.sendData(JSON.stringify(data));
-                    log('✅ تم الإرسال عبر MainButton', 'success');
-                });
-                tg.MainButton.show();
-                log('✅ تم تفعيل MainButton', 'success');
-                
-            } catch (error) {
-                log(`❌ خطأ في MainButton: ${error.message}`, 'error');
-            }
-        }
-
-        function testHaptic() {
-            log('🧪 اختبار Haptic Feedback...');
-            
-            try {
-                tg.HapticFeedback?.impactOccurred('medium');
-                log('✅ تم تشغيل Haptic Feedback', 'success');
-            } catch (error) {
-                log(`❌ خطأ في Haptic: ${error.message}`, 'error');
-            }
-        }
-
-        function testAlert() {
-            log('🧪 اختبار Alert...');
-            
-            try {
-                tg.showAlert?.('هذا اختبار للـ Alert في WebApp');
-                log('✅ تم عرض Alert', 'success');
-            } catch (error) {
-                log(`❌ خطأ في Alert: ${error.message}`, 'error');
-            }
-        }
-
-        function testExpand() {
-            log('🧪 اختبار Expand...');
-            
-            try {
-                tg.expand?.();
-                log('✅ تم توسيع WebApp', 'success');
-                setTimeout(updateInfo, 500);
-            } catch (error) {
-                log(`❌ خطأ في Expand: ${error.message}`, 'error');
-            }
-        }
-
-        // تهيئة عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', () => {
-            log('🚀 بدء تحميل صفحة التشخيص');
-            
-            if (tg) {
-                tg.ready();
-                log('✅ تم استدعاء tg.ready()');
-                updateInfo();
-            } else {
-                log('❌ Telegram WebApp غير متوفر', 'error');
-            }
+                // لا نحتاج لإغلاق النافذة، لأن فتح الرابط سيقوم بذلك
+            });
         });
-
-        // مراقبة أحداث WebApp
-        if (tg) {
-            tg.onEvent?.('themeChanged', () => {
-                log('🎨 تم تغيير الثيم');
-                updateInfo();
-            });
-
-            tg.onEvent?.('viewportChanged', () => {
-                log('📱 تم تغيير Viewport');
-                updateInfo();
-            });
-        }
     </script>
 </body>
 </html>
