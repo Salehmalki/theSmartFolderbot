@@ -2,82 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ping Test</title>
-    <!-- 1. تحميل مكتبة تليجرام -->
+    <title>اختبار switchInlineQuery</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            text-align: center; 
-            padding: 50px 20px; 
-            background-color: var(--tg-theme-bg-color );
-            color: var(--tg-theme-text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 80vh;
-        }
-        h1 {
-            margin-bottom: 10px;
-        }
-        p {
-            color: var(--tg-theme-hint-color);
-            margin-bottom: 30px;
-        }
-        button { 
-            font-size: 22px; 
-            padding: 15px 35px; 
-            cursor: pointer; 
-            border-radius: 12px;
-            border: none;
-            background-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            font-weight: bold;
-        }
-        button:active {
-            opacity: 0.8;
-        }
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+        button { font-size: 24px; padding: 20px 40px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>اختبار الاتصال</h1>
-    <p>اضغط على الزر لإرسال "نبضة" إلى n8n.</p>
-    <button id="pingButton">إرسال نبضة</button>
+    <h1>اختبار تحويل النص إلى رسالة</h1>
+    <p>اضغط على الزر لتجهيز رسالة "مرحبا n8n" في شاشة الدردشة.</p>
+    <button id="testButton">تجهيز الرسالة</button>
 
     <script>
-        // 2. انتظر حتى يتم تحميل كل شيء
-        window.addEventListener('load', function() {
-            try {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
+        window.addEventListener('load', function( ) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
 
-                const pingButton = document.getElementById('pingButton');
+            document.getElementById('testButton').addEventListener('click', function() {
+                // النص الذي نريد تحويله إلى رسالة
+                const testMessage = "مرحبا n8n، هذا اختبار ناجح.";
 
-                // 3. عند الضغط على الزر
-                pingButton.addEventListener('click', function() {
-                    try {
-                        // 4. تجهيز أبسط رسالة JSON ممكنة
-                        const pingData = {
-                            status: "ok",
-                            time: new Date().toISOString()
-                        };
-                        
-                        // 5. إرسال البيانات وإغلاق النافذة
-                        tg.sendData(JSON.stringify(pingData));
-                        tg.close();
-
-                    } catch (err) {
-                        // في حالة وجود أي خطأ أثناء الإرسال، أظهره للمستخدم
-                        tg.showAlert('حدث خطأ أثناء محاولة الإرسال: ' + err.message);
-                    }
-                });
-
-            } catch (err) {
-                // في حالة فشل تهيئة تليجرام نفسها
-                alert('فشل تحميل بيئة تليجرام: ' + err.message);
-            }
+                // **هذه هي الدالة التي نختبرها**
+                // ستقوم بالتبديل إلى شاشة الدردشة ووضع النص في صندوق الإرسال
+                tg.switchInlineQuery(testMessage, []);
+            });
         });
     </script>
 </body>
