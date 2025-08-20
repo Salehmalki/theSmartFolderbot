@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>نموذج المطوية المدرسية</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--bg:var(--tg-theme-bg-color,#fff);--txt:var(--tg-theme-text-color,#111);
+      --hint:var(--tg-theme-hint-color,#666);--sec:var(--tg-theme-secondary-bg-color,#f5f5f5);
+      --btn:var(--tg-theme-button-color,#1e88e5);--btnTxt:var(--tg-theme-button-text-color,#fff)}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    .container{max-width:640px;margin:auto;padding:20px}
+    h2{margin:6px 0 18px;text-align:center}
+    label{display:block;margin:10px 0 6px;font-weight:700;color:var(--hint)}
+    input,select,textarea,button{width:100%;padding:12px;border:1px solid var(--hint);border-radius:10px;
+      background:var(--sec);color:var(--txt);box-sizing:border-box;font-size:16px;margin-bottom:14px}
+    button{background:var(--btn);color:var(--btnTxt);border:none;font-weight:700;cursor:pointer}
+    button:active{opacity:.85}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>نموذج المطوية المدرسية</h2>
+
+    <form id="brochureForm" autocomplete="off">
+      <label for="type">نوع المطوية *</label>
+      <select id="type" name="type" required>
+        <option value="">اختر</option>
+        <option value="تعليمية">تعليمية</option>
+        <option value="إرشادية">إرشادية</option>
+      </select>
+
+      <label for="subject">الموضوع *</label>
+      <input id="subject" name="subject" type="text" required />
+
+      <label for="term">الفصل الدراسي</label>
+      <select id="term" name="term">
+        <option value="">—</option>
+        <option value="الأول">الأول</option>
+        <option value="الثاني">الثاني</option>
+        <option value="الثالث">الثالث</option>
+      </select>
+
+      <label for="pages">عدد الصفحات</label>
+      <input id="pages" name="pages" type="number" inputmode="numeric" min="1" />
+
+      <label for="student">اسم الطالب *</label>
+      <input id="student" name="student" type="text" required />
+
+      <label for="teacher">اسم المعلم</label>
+      <input id="teacher" name="teacher" type="text" />
+
+      <label for="school">اسم المدرسة</label>
+      <input id="school" name="school" type="text" />
+
+      <label for="emoji">استخدام رموز تعبيرية</label>
+      <input id="emoji" name="emoji" type="checkbox" />
+
+      <label for="refs">المراجع (كل مرجع في سطر مستقل)</label>
+      <textarea id="refs" name="refs" rows="3" placeholder=""></textarea>
+
+      <button type="submit">إنشاء المطوية</button>
+    </form>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready(); // تفعيل بيئة تيليجرام
+
+    const form = document.getElementById('brochureForm');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // تجميع البيانات
+      const data = {
+        type: form.type.value.trim(),
+        subject: form.subject.value.trim(),
+        term: form.term.value.trim(),
+        pages: form.pages.value ? Number(form.pages.value) : undefined,
+        student: form.student.value.trim(),
+        teacher: form.teacher.value.trim(),
+        school: form.school.value.trim(),
+        emoji: form.emoji.checked,
+        refs: form.refs.value
+                ? form.refs.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+                : []
+      };
+
+      // تحقق الإلزاميات
+      if (!data.type || !data.subject || !data.student) {
+        tg.showAlert('يرجى تعبئة: نوع المطوية، الموضوع، واسم الطالب.');
+        return;
+      }
+
+      // حذف الحقول الفارغة اختياريًا
+      for (const k of Object.keys(data)) {
+        if (data[k] === '' || data[k] === undefined || (Array.isArray(data[k]) && data[k].length === 0)) {
+          delete data[k];
+        }
+      }
+
+      // إرسال JSON للبوت
+      try {
+        tg.sendData(JSON.stringify(data));
+        tg.close(); // إغلاق التطبيق المصغر بعد الإرسال
+      } catch (err) {
+        tg.showAlert('تعذر الإرسال. افتح النموذج من داخل تيليجرام.');
+      }
+    });
+  </script>
+</body>
+</html>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+
+  // زر اختبار سريع (إن لم يكن لديك زر إرسال واضح)
+  document.body.insertAdjacentHTML('beforeend',
+    '<button id="__ping" style="position:fixed;bottom:12px;left:12px">إرسال اختبار</button>');
+  document.getElementById('__ping').onclick = () => tg.sendData(JSON.stringify({ ping:true, t:Date.now() }));
+
+  // عند إرسال نموذجك الحقيقي:
+  // tg.sendData(JSON.stringify(payload)); // استدعها عند submit
+</script>
